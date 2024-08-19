@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="css/sample.css">
+<title>Firebase:v9:Chatアプリ</title>
+</head>
+<body>
+
+<!-- コンテンツ表示画面 -->
+<div>
+    <div> 名前：<input type="text" id="uname"> </div>
+    <div>
+        <textarea id="text" cols="30" rows="10"></textarea>
+        <button id="send">送信</button>
+    </div>
+    <div id="output">
+        <!-- ここにJavaScriptでメッセージが追加されます -->
+    </div>
+</div>
+<!--/ コンテンツ表示画面 -->
+
+<!-- JQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<!-- JQuery -->
+
+<!--** 以下Firebase **-->
+<script type="module"> //type=moduleはグローバルで使えない
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getDatabase, ref, push, set, onChildAdded, remove, onChildRemoved, onChildChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+  
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyC0dC3b_60ppjBDcdLxMVrx5dyS4TH8fZ8",
+      authDomain: "gsdemo-6cde6.firebaseapp.com",
+      databaseURL: "https://gsdemo-6cde6-default-rtdb.firebaseio.com",
+      projectId: "gsdemo-6cde6",
+      storageBucket: "gsdemo-6cde6.appspot.com",
+      messagingSenderId: "788565806653",
+      appId: "1:788565806653:web:7634af5a875c1e59966454"
+    };
+  
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db  = getDatabase(app); //RealtimeDBに接続
+    const dbRef = ref(db,"Chat"); //RealtimeDB内の"chat"を使う
+
+    // メッセージの送信 (ボタンクリック)
+    $("#send").on("click", function() {
+        sendMessage();
+    });
+
+    // メッセージの送信 (Enterキー)
+    $("#text").on("keydown", function(e) {
+        if (e.keyCode == 13) { // EnterKey=13
+            sendMessage();
+        }
+    });
+
+    // メッセージを送信する関数
+    function sendMessage() {
+        const msg = {
+            uname: $("#uname").val(), // #unameの値を取得してunameに入れる
+            text: $("#text").val(),
+            date: new Date().toLocaleString() // 現在の日時
+        };
+        console.log(msg); // ここで取得できているか確認
+        const newPostRef = push(dbRef); // ユニークKEYを生成
+        set(newPostRef, msg);           // "chat"にユニークKEYをつけてオブジェクトデータを登録
+    }
+
+    //メッセージの受信
+    onChildAdded(dbRef, function(data){ 
+        const msg = data.val(); //object変数で受け取る
+        const key = data.key;   //このデータのUniqeIDを取得
+        let h = '<div class="message ' + (msg.uname === $("#uname").val() ? 'my-message' : 'their-message') + '" data-key="' + key + '">';
+            h += '<strong>' + msg.uname + '</strong>'; // ユーザー名を表示
+            h += '<br>';
+            h += msg.text; // メッセージ内容を表示
+            h += '<br>';
+            h += '<small>' + msg.date + '</small>';
+            // 自分のメッセージにのみ削除ボタンを表示
+            if (msg.uname === $("#uname").val()) {
+                h += ' <button class="delete-button" data-key="' + key + '">削除</button>';
+            }
+        h += '</div>';
+        $("#output").append(h);
+        //最新メッセージへスクロール
+        const chatArea = document.getElementById('output');
+        chatArea.scrollTop = chatArea.scrollHeight;
+
+    });
+
+    // メッセージの削除
+    $(document).on('click', '.delete-button', function() {
+        const messageKey = $(this).data('key');
+        const messageRef = ref(db, 'Chat/' + messageKey);
+
+        set(messageRef, {
+            deleted: true, // deleteフィールドをtrueにする
+            uname: $(this).siblings('strong').text(),
+            text: 'このメッセージは削除されました',
+            date: new Date().toLocaleString() // 現在の日時
+        })
+        .then(() => {
+            console.log('メッセージが削除されました');
+            // メッセージを表示していた<div>を「削除されました」と表示
+            $(this).closest('.message').html('このメッセージは削除されました');
+        })
+        .catch((error) => {
+            console.error('削除に失敗しました: ', error);
+        });
+    });
+
+    // メッセージの変更を監視し、削除されたメッセージを反映
+    onChildChanged(dbRef, function(data) {
+        const msg = data.val();
+        const key = data.key;
+        
+        // 削除フラグがある場合
+        if (msg.deleted) {
+            // メッセージの<div>を「削除されました」と表示
+            $('#output').find(`[data-key="${key}"]`).html('このメッセージは削除されました');
+        }
+    });
+    
+
+</script>
+
+
+
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

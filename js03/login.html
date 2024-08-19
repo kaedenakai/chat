@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="css/sample.css">
+<title>Firebase:v9:Chatアプリ</title>
+</head>
+<body>
+
+<!-- コンテンツ表示画面 -->
+
+<!-- ユーザー登録 -->
+<form id="register-form">
+    <input type="email" id="register-email" placeholder="メールアドレス" required>
+    <input type="password" id="register-password" placeholder="パスワード" required>
+    <button type="submit">登録</button>
+  </form>
+  
+  <!-- ユーザーログイン -->
+  <form id="login-form">
+    <input type="email" id="login-email" placeholder="メールアドレス" required>
+    <input type="password" id="login-password" placeholder="パスワード" required>
+    <button type="submit">ログイン</button>
+  </form>
+  
+
+<!--/ コンテンツ表示画面 -->
+
+<!-- JQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<!-- JQuery -->
+
+<!--** 以下Firebase **-->
+<script type="module"> //type=moduleはグローバルで使えない
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+
+    // Firebase Authenticationの初期化
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+    const auth = getAuth();
+
+    // ユーザー登録
+    document.getElementById('register-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const email = document.getElementById('register-email').value;
+        const password = document.getElementById('register-password').value;
+
+        createUserWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                // 登録成功
+                const user = userCredential.user;
+                console.log('登録成功:', user);
+            })
+            .catch((error) => {
+                console.error('登録エラー:', error);
+            });
+    });
+
+    // ユーザーログイン
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+
+        signInWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                // ログイン成功
+                const user = userCredential.user;
+                console.log('ログイン成功:', user);
+            })
+            .catch((error) => {
+                console.error('ログインエラー:', error);
+            });
+    });
+
+    // ログアウトの例
+    function logout() {
+        signOut(auth)
+            .then(() => {
+                console.log('ログアウト成功');
+            })
+            .catch((error) => {
+                console.error('ログアウトエラー:', error);
+            });
+    }
+
+
+</script>
+
+
+
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

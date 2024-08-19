@@ -1,0 +1,35 @@
+
+#output {
+    overflow: auto;
+    height: 300px;
+    width: 600px;
+    border: 1px solid red;
+    padding: 10px;
+}
+
+.message {
+    max-width: 60%;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 10px;
+    clear: both;
+    display: inline-block;
+    cursor: pointer; /* クリック可能なスタイル */
+}
+
+/* 自分のメッセージを右側に表示 */
+.my-message {
+    background-color: #DCF8C6;
+    margin-left: auto;
+    text-align: right;
+    float: right;
+}
+
+/* 相手のメッセージを左側に表示 */
+.their-message {
+    background-color: #E5E5EA;
+    margin-right: auto;
+    text-align: left;
+    float: left;
+}
+
