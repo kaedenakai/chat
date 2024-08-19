@@ -3,8 +3,11 @@
     overflow: auto;
     height: 300px;
     width: 600px;
-    border: 1px solid red;
+    border: 1px solid rgb(0, 13, 255);
     padding: 10px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    background-color: #e1edfa;
 }
 
 .message {
@@ -19,7 +22,7 @@
 
 /* 自分のメッセージを右側に表示 */
 .my-message {
-    background-color: #DCF8C6;
+    background-color: #fac973;
     margin-left: auto;
     text-align: right;
     float: right;
@@ -33,3 +36,18 @@
     float: left;
 }
 
+button {
+    color: rgb(0, 13, 255);
+	border-bottom: 2px solid #27acd9;
+	border-radius: 100vh;
+	box-shadow: 0 2px 7px rgba(0, 0, 0, .3);
+	-webkit-box-shadow: 0 2px 7px rgba(0, 0, 0, .3);
+	transition: 0.5s;
+    padding: 3px 10px;
+}
+button:hover {
+	color: #fff;
+	background: #27acd9;
+	border-bottom: 2px solid #fff;
+	transform: translateY(3px);
+}

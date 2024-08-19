@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="css/sample.css">
-<title>Firebase:v9:Chatアプリ</title>
+<title>チャットアプリ ‐ チャット</title>
 </head>
 <body>
 
@@ -17,6 +17,7 @@
     <div id="output">
         <!-- ここにJavaScriptでメッセージが追加されます -->
     </div>
+    <button id="logout">ログアウト</button> <!-- ログアウトボタンを追加 -->
 </div>
 <!--/ コンテンツ表示画面 -->
 
@@ -49,6 +50,18 @@
     const app = initializeApp(firebaseConfig);
     const db  = getDatabase(app); //RealtimeDBに接続
     const dbRef = ref(db,"Chat"); //RealtimeDB内の"chat"を使う
+    const auth = getAuth(app);
+
+
+    // // ローカルストレージからユーザー名を取得
+    // const username = localStorage.getItem('username');
+    // if (username) {
+    //     document.getElementById('uname').value = username;
+    //     document.getElementById('uname').readOnly = true; // unameフィールドを編集不可にする
+    // } else {
+    //     // ユーザー名が取得できない場合、ログイン画面にリダイレクト
+    //     window.location.href = 'login.html';
+    // }   
 
     // メッセージの送信 (ボタンクリック)
     $("#send").on("click", function() {
@@ -128,8 +141,16 @@
             $('#output').find(`[data-key="${key}"]`).html('このメッセージは削除されました');
         }
     });
-    
 
+    // ログアウトボタンがクリックされたときの処理
+    document.getElementById('logout').addEventListener('click', function() {
+        signOut(auth).then(() => {
+            // ログアウト成功時にログイン画面へ遷移
+            window.location.href = 'login.html';
+        }).catch((error) => {
+            console.error('ログアウトに失敗しました: ', error);
+        });
+    });
 </script>
 
 

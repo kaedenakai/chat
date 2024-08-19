@@ -3,28 +3,30 @@
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="css/sample.css">
-<title>Firebase:v9:Chatアプリ</title>
+<title>チャットアプリ - 登録/ログイン</title>
 </head>
 <body>
 
-<!-- コンテンツ表示画面 -->
-
-<!-- ユーザー登録 -->
-<form id="register-form">
-    <input type="email" id="register-email" placeholder="メールアドレス" required>
-    <input type="password" id="register-password" placeholder="パスワード" required>
-    <button type="submit">登録</button>
-  </form>
-  
-  <!-- ユーザーログイン -->
-  <form id="login-form">
-    <input type="email" id="login-email" placeholder="メールアドレス" required>
-    <input type="password" id="login-password" placeholder="パスワード" required>
-    <button type="submit">ログイン</button>
-  </form>
-  
-
-<!--/ コンテンツ表示画面 -->
+    <div id="auth-container">
+        <h1>チャット</h1>
+        <div id="auth-form">
+            <div id="login-form">
+                <h2>ログイン</h2>
+                <input type="text" id="login-username" placeholder="ユーザID">
+                <input type="password" id="login-password" placeholder="パスワード">
+                <button id="login-button">ログイン</button>
+                <div id="errorPopup" style="display:none; color:red;"></div>
+                <p>アカウントがないかた <a href="#" id="show-register">こちらから登録</a></p>
+            </div>
+            <div id="register-form" style="display: none;">
+                <h2>登録</h2>
+                <input type="text" id="register-username" placeholder="ユーザID">
+                <input type="password" id="register-password" placeholder="パスワード">
+                <button id="register-button">登録</button>
+                <p>アカウントをお持ちのかた <a href="#" id="show-login">こちらからログイン</a></p>
+            </div>
+        </div>
+    </div>
 
 <!-- JQuery -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -34,60 +36,82 @@
 <script type="module"> //type=moduleはグローバルで使えない
     // Import the functions you need from the SDKs you need
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import { getDatabase } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
 
-    // Firebase Authenticationの初期化
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    const firebaseConfig = {
+        apiKey: "AIzaSyC0dC3b_60ppjBDcdLxMVrx5dyS4TH8fZ8",
+        authDomain: "gsdemo-6cde6.firebaseapp.com",
+        databaseURL: "https://gsdemo-6cde6-default-rtdb.firebaseio.com",
+        projectId: "gsdemo-6cde6",
+        storageBucket: "gsdemo-6cde6.appspot.com",
+        messagingSenderId: "788565806653",
+        appId: "1:788565806653:web:7634af5a875c1e59966454"
+    };
 
-    const auth = getAuth();
+    // Firebaseを初期化
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-    // ユーザー登録
-    document.getElementById('register-form').addEventListener('submit', function(e) {
-        e.preventDefault();
+    // 登録フォームを表示
+    document.getElementById('show-register').addEventListener('click', () => {
+        document.getElementById('login-form').style.display = 'none';
+        document.getElementById('register-form').style.display = 'block';
+    });
 
-        const email = document.getElementById('register-email').value;
+    // ログインフォームを表示
+    document.getElementById('show-login').addEventListener('click', () => {
+        document.getElementById('login-form').style.display = 'block';
+        document.getElementById('register-form').style.display = 'none';
+    });
+
+    // 新規ユーザーの登録
+    document.getElementById('register-button').addEventListener('click', () => {
+        const username = document.getElementById('register-username').value;
         const password = document.getElementById('register-password').value;
 
-        createUserWithEmailAndPassword(auth, email, password)
+        createUserWithEmailAndPassword(auth, username + "@example.com", password)
             .then((userCredential) => {
-                // 登録成功
                 const user = userCredential.user;
-                console.log('登録成功:', user);
+                console.log('ユーザーが登録されました:', user);
             })
             .catch((error) => {
                 console.error('登録エラー:', error);
             });
     });
 
-    // ユーザーログイン
-    document.getElementById('login-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        const email = document.getElementById('login-email').value;
+    // 既存ユーザーのログイン
+    document.getElementById('login-button').addEventListener('click', () => {
+        const username = document.getElementById('login-username').value;
         const password = document.getElementById('login-password').value;
 
-        signInWithEmailAndPassword(auth, email, password)
+        signInWithEmailAndPassword(auth, username + "@example.com", password)
             .then((userCredential) => {
-                // ログイン成功
                 const user = userCredential.user;
                 console.log('ログイン成功:', user);
+                // localStorage.setItem('username', username);
+                window.location.href = 'chat.html'; // チャット画面にリダイレクト
             })
             .catch((error) => {
-                console.error('ログインエラー:', error);
-            });
+            const errorCode = error.code;
+            const errorMessage = error.message;
+
+            if (errorCode === 'auth/user-not-found' || errorCode === 'auth/invalid-email'|| errorCode === `auth/invalid-credential`) {
+                // エラーメッセージの表示
+                document.getElementById('errorPopup').innerHTML = 'アカウントの登録がありません';
+                document.getElementById('errorPopup').style.display = 'block';
+            } else {
+                console.error('ログインに失敗しました:', errorMessage);
+            }
+        });
     });
 
-    // ログアウトの例
-    function logout() {
-        signOut(auth)
-            .then(() => {
-                console.log('ログアウト成功');
-            })
-            .catch((error) => {
-                console.error('ログアウトエラー:', error);
-            });
-    }
-
-
+    // 認証状態を確認
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            window.location.href = 'chat.html'; // 既にログインしている場合はチャット画面にリダイレクト
+        }
+    });
 </script>
 
 
